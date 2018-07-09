@@ -15,72 +15,47 @@ limitations under the License.
 */
 
 #pragma once
-#include "sdltRenderNode.h"
 
 #include <iostream>
 #include <string>
+#include <list>
+
+#include "sdltRenderNode.h"
+#include "sdltButtonDetails.h"
+#include "sdltButtonResponder.h"
+#include "sdltVec2D.h"
+
 
 #include <SDL.h>
 
 
-class qdtButtonResponder; //Forward decleration
 
-enum ButtonState {
-	BS_MOUSE_OUT = 0,
-	BS_MOUSE_OVER = 1,
-	BS_MOUSE_DOWN = 2,
-	BS_MOUSE_UP = 3,
-	BS_TOTAL = 4
-};
-
-enum ButtonType {
-	BT_NORMAL,
-	BT_TOGGLE
-};
-
-class qdtButton :
-	public sdlt::RenderNode
+namespace sdlt
 {
-public:
-	qdtButton(std::string buttonName, ButtonType type, int x, int y, int w, int h, 
-		double scaleX = 1.0, double scaleY = 1.0, double rotation = 0.0);
-	~qdtButton();
+	class Button
+	{
+	public:
+		Button(
+			std::string name,
+			ButtonType type,
+			int w, int h,
+			WindowDetailsSPtr windowDetails,
+			Vec2D position,
+			Vec2D scale = Vec2D{ 1, 1 },
+			double rotation = 0.0
+		);
+		~Button();
 
-	void setHandler(qdtButtonResponder* responder);
-	void setRenderItem(ButtonState state, RenderNode* item);
+		void addResponder(ButtonResponder* responder);
+		void handleEvent(SDL_Event * e);
 
-	void render(SDL_Renderer* renderer, ParentProperties pProperties);
-	void handleEvent(SDL_Event * e);
+		ButtonDetailsSPtr getDetails();
 
-	ButtonState getState() const;
+	private:
+		ButtonDetailsSPtr mDetails;
 
-	const std::string mName;
+		std::list<ButtonResponder*> mResponders;
 
-
-
-private:
-	void setState(ButtonState newState);
-
-
-	int mW, mH;
-
-	qdtButtonResponder* mResponder;
-
-	ButtonType mType;
-
-	ButtonState mCurrentState;
-
-	RenderNode* mButtonRenderItems[BS_TOTAL];
-};
-
-
-
-
-
-class qdtButtonResponder
-{
-public:
-	qdtButtonResponder();
-	~qdtButtonResponder();
-	virtual void stateChange(qdtButton* button);
-};
+		void updateState(ButtonState newState);
+	};
+}

@@ -20,34 +20,67 @@ limitations under the License.
 #include "../sdltWindow.h"
 #include "../sdltColours.h"
 #include "../sdltSquare.h"
+#include "../sdltButton.h"
 
-void example1()
+using namespace sdlt;
+
+void example2()
 {
 	// Load SDL
-	sdlt::Manager sdlManager{}; 
+	sdlt::Manager sdlManager{};
 
 	// Make a window
-	sdlt::Window window{ 
-		"Example1",       // Title
+	sdlt::Window window{
+		"Example2",       // Title
 		1000,             // Width
 		1000,             // Height
 		0 };              // SDL flags
 
-	std::list<std::unique_ptr<sdlt::RenderNode>> renderItems;
+	std::list<std::shared_ptr<sdlt::RenderNode>> renderItems;
+	std::vector<std::shared_ptr<Button>> buttons;
 
-	for (size_t i = 0; i < 5; i++)
 	{
-		renderItems.push_back(
-			std::unique_ptr<sdlt::RenderNode>{
+		buttons.push_back(
+			std::shared_ptr<Button>{
+			new Button(
+				"Button 1",
+				ButtonType::BT_NORMAL,
+				100, 100,
+				window.getWindowDetails(),
+				Vec2D(200, 200))
+		});
+
+		ButtonDetailsSPtr bd = buttons[0]->getDetails();
+
+		bd->setRenderItem(ButtonState::BS_MOUSE_OUT,
 			new sdlt::Square(
 				window.getWindowDetails(),
-				rand() % 900, rand() % 900,
+				0, 0,
 				100,
-				sdlt::Colour::random()
+				sdlt::Colour::green()
 			)
-		}
 		);
-		window.addChild(renderItems.back().get());
+
+		bd->setRenderItem(ButtonState::BS_MOUSE_OVER,
+			new sdlt::Square(
+				window.getWindowDetails(),
+				0, 0,
+				100,
+				sdlt::Colour::orange()
+			)
+		);
+
+		bd->setRenderItem(ButtonState::BS_MOUSE_DOWN,
+			new sdlt::Square(
+				window.getWindowDetails(),
+				0, 0,
+				100,
+				sdlt::Colour::red()
+			)
+		);
+
+		window.addChild(bd.get());
+
 	}
 
 	bool quit = false;
@@ -67,26 +100,14 @@ void example1()
 				case SDLK_q:
 					quit = true;
 					break;
-				case SDLK_w:
-					renderItems.clear();
-					break;
 				default:
-					renderItems.clear();
-					for (size_t i = 0; i < 5; i++)
-					{
-						renderItems.push_back(
-							std::unique_ptr<sdlt::RenderNode>{
-							new sdlt::Square(
-								window.getWindowDetails(),
-								rand() % 900, rand() % 900,
-								100,
-								sdlt::Colour::random()
-							)
-						}
-						);
-						window.addChild(renderItems.back().get());
-					}
+					break;
 				}
+			}
+
+			for (size_t i = 0; i < buttons.size(); i++)
+			{
+				buttons[i]->handleEvent(&e);
 			}
 		}
 

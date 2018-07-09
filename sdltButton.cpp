@@ -18,66 +18,29 @@ limitations under the License.
 
 using namespace sdlt;
 
-
-qdtButton::qdtButton(std::string buttonName, ButtonType type, int x, int y, int w, int h,
-	double scaleX, double scaleY, double rotation)
-	:RenderNode(x, y, scaleX, scaleY, rotation), mName(buttonName)
-{
-	mType = type;
-	mW = w;
-	mH = h;
-
-	mResponder = NULL;
-	mCurrentState = BS_MOUSE_OUT;
-
-	for (int i = 0; i < BS_TOTAL; i++)
-	{
-		mButtonRenderItems[i] = NULL;
-	}
-}
-
-
-qdtButton::~qdtButton()
+sdlt::Button::Button(
+	std::string name, 
+	ButtonType type,
+	int w, int h,
+	WindowDetailsSPtr windowDetails, 
+	Vec2D position, 
+	Vec2D scale, 
+	double rotation)
+	:mDetails(new ButtonDetails(name, type, w, h, windowDetails, position, scale, rotation))
 {
 }
 
 
-void qdtButton::setHandler(qdtButtonResponder * responder)
+Button::~Button()
 {
-	mResponder = responder;
 }
 
-void qdtButton::setRenderItem(ButtonState state, RenderNode * item)
+void sdlt::Button::addResponder(ButtonResponder * responder)
 {
-	mButtonRenderItems[state] = item;
+	mResponders.push_back(responder);
 }
 
-
-void qdtButton::render(SDL_Renderer * renderer, ParentProperties pProperties)
-{
-	ParentProperties mProp = pProperties;
-
-	mProp.position = applyParentPosition(pProperties);
-
-	mProp.scaleX *= mScale.getX();
-	mProp.scaleY *= mScale.getY();
-	mProp.rotation += mRotation;
-
-	if (mButtonRenderItems[mCurrentState] != NULL)
-	{
-		mButtonRenderItems[mCurrentState]->render(renderer, mProp);
-	}
-	else if (mButtonRenderItems[BS_MOUSE_OUT] != NULL)
-	{
-		mButtonRenderItems[BS_MOUSE_OUT]->render(renderer, mProp);
-	}
-	else
-	{
-		std::cout << "qdtButton::render || button: '" << mName << "' has no default render item." << std::endl;
-	}
-}
-
-void qdtButton::handleEvent(SDL_Event * e)
+void Button::handleEvent(SDL_Event * e)
 {
 	if (((e->type == SDL_MOUSEMOTION) | e->type == SDL_MOUSEBUTTONDOWN) | e->type == SDL_MOUSEBUTTONUP)
 	{
@@ -86,23 +49,23 @@ void qdtButton::handleEvent(SDL_Event * e)
 
 		bool isInside = true;
 
-		if (x < mPosition.getX()) isInside = false; // Left
-		if (y < mPosition.getY()) isInside = false; // Up
-		if (x > mPosition.getX() + mW) isInside = false; // Right
-		if (y > mPosition.getY() + mH) isInside = false; // Down
+		if (x < mDetails->getX()) isInside = false; // Left
+		if (y < mDetails->getY()) isInside = false; // Up
+		if (x > mDetails->getX() + mDetails->getWidth()) isInside = false; // Right
+		if (y > mDetails->getY() + mDetails->getHeight()) isInside = false; // Down
 
 		if (isInside)
 		{
 			switch (e->type)
 			{
 			case SDL_MOUSEMOTION:
-				setState(BS_MOUSE_OVER);
+				updateState(ButtonState::BS_MOUSE_OVER);
 				break;
 			case SDL_MOUSEBUTTONDOWN:
-				setState(BS_MOUSE_DOWN);
+				updateState(ButtonState::BS_MOUSE_DOWN);
 				break;
 			case SDL_MOUSEBUTTONUP:
-				setState(BS_MOUSE_UP);
+				updateState(ButtonState::BS_MOUSE_UP);
 				break;
 			default:
 				break;
@@ -110,48 +73,46 @@ void qdtButton::handleEvent(SDL_Event * e)
 		}
 		else
 		{
-			setState(BS_MOUSE_OUT);
+			updateState(ButtonState::BS_MOUSE_OUT);
 		}
 	}
 }
 
-ButtonState qdtButton::getState() const
+ButtonDetailsSPtr sdlt::Button::getDetails()
 {
-	return mCurrentState;
+	return mDetails;
 }
 
-
-
-
-
-/* ---- Private ---- */
-void qdtButton::setState(ButtonState newState)
+void Button::updateState(ButtonState newState)
 {
-	if (mCurrentState != newState)
+#ifdef _DEBUG_
+	switch (newState)
 	{
-		mCurrentState = newState;
-		if (mResponder != NULL)
+	case sdlt::ButtonState::BS_MOUSE_OUT:
+		std::cout << "BS_MOUSE_OUT" << std::endl;
+		break;
+	case sdlt::ButtonState::BS_MOUSE_OVER:
+		std::cout << "BS_MOUSE_OVER" << std::endl;
+		break;
+	case sdlt::ButtonState::BS_MOUSE_DOWN:
+		std::cout << "BS_MOUSE_DOWN" << std::endl;
+		break;
+	case sdlt::ButtonState::BS_MOUSE_UP:
+		std::cout << "BS_MOUSE_UP" << std::endl;
+		break;
+	default:
+		break;
+	}
+#endif // _DEBUG_
+
+
+	if (mDetails->getState() != newState)
+	{
+		mDetails->setState(newState);
+		for (std::list<ButtonResponder*>::iterator it=mResponders.begin(); it != mResponders.end(); ++it)
 		{
-			mResponder->stateChange(this);
+			ButtonResponder* res = *it;
+			(*res)(mDetails);
 		}
 	}
-}
-
-
-
-/* ---- qdtButtonResponder ---- */
-qdtButtonResponder::qdtButtonResponder()
-{
-}
-
-
-qdtButtonResponder::~qdtButtonResponder()
-{
-}
-
-
-void qdtButtonResponder::stateChange(qdtButton* button)
-{
-	std::cout << "qdtButtonResponder::stateChange | virtual function running in response to" << std::endl;
-	std::cout << button->mName << " chaning to state " << button->getState() << std::endl;
 }
