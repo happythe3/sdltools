@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+# VS Files
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+sdltools/*
+main.cpp
