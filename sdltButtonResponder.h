@@ -16,7 +16,6 @@ limitations under the License.
 
 #pragma once
 
-#include "sdltResponder.h"
 #include "sdltButton.h"
 #include "sdltButtonDetails.h"
 

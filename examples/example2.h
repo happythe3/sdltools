@@ -14,15 +14,64 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+
+/*
+Simple example to show basic use of buttons
+*/
+
 #pragma once
+
+#include <iostream>
 
 #include "../sdltSDLManager.h"
 #include "../sdltWindow.h"
 #include "../sdltColours.h"
 #include "../sdltSquare.h"
 #include "../sdltButton.h"
+#include "../sdltButtonResponder.h"
 
 using namespace sdlt;
+
+
+class buttonLogger
+	:public ButtonResponder
+{
+public:
+
+	std::list<std::string> prevStates{};
+
+	void operator() (ButtonDetailsSPtr details)
+	{
+		std::cout << "<" << details->mName << "> ";
+		if (!prevStates.empty())
+		{
+			std::cout << prevStates.back() << " -> ";
+		}
+		
+		switch (details->getState())
+		{
+		case sdlt::ButtonState::BS_MOUSE_OUT:
+			prevStates.push_back("BS_MOUSE_OUT ");
+			std::cout << "BS_MOUSE_OUT " << std::endl;
+			break;
+		case sdlt::ButtonState::BS_MOUSE_OVER:
+			prevStates.push_back("BS_MOUSE_OVER");
+			std::cout << "BS_MOUSE_OVER" << std::endl;
+			break;
+		case sdlt::ButtonState::BS_MOUSE_DOWN:
+			prevStates.push_back("BS_MOUSE_DOWN");
+			std::cout << "BS_MOUSE_DOWN" << std::endl;
+			break;
+		case sdlt::ButtonState::BS_MOUSE_UP:
+			prevStates.push_back("BS_MOUSE_UP  ");
+			std::cout << "BS_MOUSE_UP  " << std::endl;
+			break;
+		default:
+			break;
+		}
+	}
+};
+
 
 void example2()
 {
@@ -78,6 +127,8 @@ void example2()
 				sdlt::Colour::red()
 			)
 		);
+
+		buttons[0]->addResponder(new buttonLogger);
 
 		window.addChild(bd.get());
 
