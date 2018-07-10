@@ -18,57 +18,60 @@ limitations under the License.
 
 using namespace sdlt;
 
-qdtText::qdtText(int x, int y, qdtFont* font, SDL_Colour colour, std::string text,
-	double scaleX, double scaleY, double rotation)
-	:RenderNode(x, y, scaleY, scaleY, rotation), m_font{ font }, m_colour{ colour },
-	m_text(text), m_regenerate_texture(true), m_texture{ NULL }
+sdlt::Text::Text(
+	WindowDetailsSPtr windowDetails,
+	Vec2D position, 
+	FontSPtr font, 
+	SDL_Colour colour,
+	std::string text, 
+	Vec2D scale, 
+	double rotation)
+	:RenderNode{ windowDetails, position, scale, rotation },
+	mFont{ font }, mColour{ colour }, mText{ text },
+	mRegenerateTexture{ true },
+	mTexture{ NULL }
 {
 }
 
-qdtText::~qdtText()
+Text::~Text()
 {
 	freeOld();
 }
 
-void qdtText::updateText(std::string text)
+void Text::updateText(std::string text)
 {
-	if (m_text.compare(text) != 0)
+	if (mText.compare(text) != 0)
 	{
-		// Text has changed
-		m_text = text;
-		m_regenerate_texture = true;
+		mText = text;
+		mRegenerateTexture = true;
 	}
 }
 
-void qdtText::updateColour(SDL_Colour colour)
+void Text::updateColour(SDL_Colour colour)
 {
-	// Checking if colour has changed
-	if (m_colour.r != colour.r || m_colour.g != colour.g || m_colour.b != colour.b || m_colour.a != colour.a)
+	if (!Colour::equal(mColour, colour))
 	{
-		m_colour = colour;
-		m_regenerate_texture = true;
+		mColour = colour;
+		mRegenerateTexture = true;
 	}
 }
 
-void qdtText::updateTexture(SDL_Renderer * renderer)
+void Text::render(ParentProperties pProperties)
 {
-	if (m_regenerate_texture)
+	if (mRegenerateTexture)
 	{
-		regenerateTexture(renderer);
+		regenerateTexture();
 	}
-}
 
-void qdtText::render(SDL_Renderer * renderer, ParentProperties pProperties)
-{
 	SDL_Point pos = applyParentPosition(pProperties);
 
 	SDL_Rect render_rect = { pos.x, pos.y, int(mW * pProperties.scaleX * mScale.getX()), 
 		int(mH * pProperties.scaleY * mScale.getY()) };
 
-	SDL_RenderCopy(renderer, m_texture, NULL, &render_rect);
+	SDL_RenderCopy(mWindowDetails->rendererPtr, mTexture, NULL, &render_rect);
 
 	// Done at end so that it is drawn over other items
-	RenderNode::render(renderer, pProperties);
+	RenderNode::render(pProperties);
 }
 
 
@@ -77,23 +80,23 @@ void qdtText::render(SDL_Renderer * renderer, ParentProperties pProperties)
 // Private Functions //
 // ################# //
 
-void qdtText::freeOld() 
+void Text::freeOld() 
 {
-	if (m_texture != NULL)
+	if (mTexture != NULL)
 	{
-		SDL_DestroyTexture(m_texture);
-		m_texture = NULL;
+		SDL_DestroyTexture(mTexture);
+		mTexture = NULL;
 		mW = 0;
 		mH = 0;
 	}
 }
 
-void qdtText::regenerateTexture(SDL_Renderer * renderer) 
+void Text::regenerateTexture() 
 {
 	// Clear old texture
 	freeOld();
 
-	SDL_Surface* text_surface = TTF_RenderText_Solid(m_font->font(), m_text.c_str(), m_colour);
+	SDL_Surface* text_surface = TTF_RenderText_Solid(mFont->font(), mText.c_str(), mColour);
 	if (text_surface == NULL)
 	{
 		throw;
@@ -101,8 +104,8 @@ void qdtText::regenerateTexture(SDL_Renderer * renderer)
 	else
 	{
 		// Create texture
-		m_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
-		if (m_texture == NULL)
+		mTexture = SDL_CreateTextureFromSurface(mWindowDetails->rendererPtr, text_surface);
+		if (mTexture == NULL)
 		{
 			throw;
 		}
@@ -115,5 +118,5 @@ void qdtText::regenerateTexture(SDL_Renderer * renderer)
 
 	SDL_FreeSurface(text_surface);
 
-	m_regenerate_texture = false;
+	mRegenerateTexture = false;
 }

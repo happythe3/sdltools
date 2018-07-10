@@ -16,36 +16,36 @@ limitations under the License.
 
 #include "sdltFont.h"
 
+using namespace sdlt;
 
 
-qdtFont::qdtFont(std::string path, int size)
-	:m_name(path), m_size(size)
+Font::Font(std::string path, int size)
+	:mName(path), mSize(size)
 {
-	m_font = TTF_OpenFont(path.c_str(), size);
-	if (m_font == NULL)
+	mFont = TTF_OpenFont(path.c_str(), size);
+	if (mFont == NULL)
 	{
-		throw qdt::f_error(path, TTF_GetError());
+		throw f_error(path, TTF_GetError());
 	}
-
 }
 
 
-qdtFont::~qdtFont()
+Font::~Font()
 {
-	TTF_CloseFont(m_font);
+	TTF_CloseFont(mFont);
 }
 
-std::string qdtFont::name() const
+std::string Font::name() const
 {
-	return m_name;
+	return mName;
 }
 
-int qdtFont::size() const
+int Font::size() const
 {
-	return m_size;
+	return mSize;
 }
 
-TTF_Font * qdtFont::font()
+TTF_Font * Font::font()
 {
-	return m_font;
+	return mFont;
 }

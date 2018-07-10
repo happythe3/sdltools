@@ -17,11 +17,13 @@ limitations under the License.
 #pragma once
 
 #include <string>
-#include <map>
+#include <memory>
 
 #include <SDL_ttf.h>
 
-namespace qdt {
+
+namespace sdlt
+{
 	struct f_error {
 		f_error(std::string n, const char* e) {
 			name = n;
@@ -30,24 +32,25 @@ namespace qdt {
 		std::string name;
 		const char* error;
 	};
+
+
+	class Font
+	{
+	public:
+		Font(std::string path, int size);
+		~Font();
+
+		// Returns the name of the font
+		std::string name() const;
+		// Returns the size of the font
+		int size() const;
+		// Returns a pointer to the font
+		TTF_Font* font();
+	private:
+		TTF_Font * mFont;
+		std::string mName;
+		int mSize;
+	};
+
+	using FontSPtr = std::shared_ptr<Font>;
 }
-
-class qdtFont
-{
-public:
-	qdtFont(std::string path, int size);
-	~qdtFont();
-
-
-	// Returns the name of the font
-	std::string name() const;
-	// Returns the size of the font
-	int size() const;
-	// Returns a pointer to the font
-	TTF_Font* font();
-private:
-	TTF_Font* m_font;
-	int m_size;
-	std::string m_name;
-};
-

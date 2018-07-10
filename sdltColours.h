@@ -38,5 +38,12 @@ namespace sdlt
 				0x00
 			};
 		}
+
+		static bool equal(const SDL_Colour &c1, const SDL_Colour &c2)
+		{
+			return c1.r == c2.r && c1.g == c2.g && c1.b == c2.b && c1.a == c2.a;
+		}
 	};
+
+	
 }
