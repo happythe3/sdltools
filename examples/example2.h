@@ -110,13 +110,27 @@ void example2()
 			)
 		);
 
-		bd->setRenderItem(ButtonState::BS_MOUSE_OVER,
+		RenderNode* rn = new RenderNode(window.getWindowDetails(), Vec2D{ 0, 0 });
+		rn->addChild(
 			new sdlt::Square(
 				window.getWindowDetails(),
 				0, 0,
 				100,
 				sdlt::Colour::orange()
 			)
+		);
+
+		rn->addChild(
+			new sdlt::Square(
+				window.getWindowDetails(),
+				25, 25,
+				50,
+				sdlt::Colour::blue()
+			)
+		);
+
+		bd->setRenderItem(ButtonState::BS_MOUSE_OVER,
+			rn
 		);
 
 		bd->setRenderItem(ButtonState::BS_MOUSE_DOWN,
