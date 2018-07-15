@@ -23,17 +23,16 @@ limitations under the License.
 #include "sdltWindowDetails.h"
 #include "sdltVec2D.h"
 
-struct ParentProperties
-{
-	SDL_Point position;
-	double scaleX;
-	double scaleY;
-	double rotation;
-};
-
-
 namespace sdlt
 {
+	struct ParentProperties
+	{
+		SDL_Point position;
+		double scaleX;
+		double scaleY;
+		double rotation;
+	};
+
 	class RenderNode
 	{
 	public:
