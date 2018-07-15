@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 #include "sdltText.h"
+#include <exception>
 
 using namespace sdlt;
 
@@ -96,10 +97,16 @@ void Text::regenerateTexture()
 	// Clear old texture
 	freeOld();
 
+	if (mText.length() == 0)
+	{
+		// Can't have zero length string
+		mText = " ";
+	}
+
 	SDL_Surface* text_surface = TTF_RenderText_Solid(mFont->font(), mText.c_str(), mColour);
 	if (text_surface == NULL)
 	{
-		throw;
+		throw std::exception(TTF_GetError());
 	}
 	else
 	{

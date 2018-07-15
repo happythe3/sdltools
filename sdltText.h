@@ -36,7 +36,7 @@ namespace sdlt
 			Vec2D position,
 			FontSPtr font,
 			SDL_Colour colour,
-			std::string text = "",
+			std::string text = " ",
 			Vec2D scale = Vec2D{ 1, 1 },
 			double rotation = 0.0
 		);
