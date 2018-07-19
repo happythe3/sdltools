@@ -19,31 +19,36 @@ limitations under the License.
 #include "sdltRenderNode.h"
 
 
-enum BarType {
-	BarHorizontal,
-	BarVertical
-};
-
-class qdtProgressBar :
-	public sdlt::RenderNode
+namespace sdlt
 {
-public:
-	qdtProgressBar(int x, int y, int w, int h, SDL_Colour empty, SDL_Colour full, BarType type = BarHorizontal);
-	~qdtProgressBar();
+	class ProgressBar :
+		public sdlt::RenderNode
+	{
+	public:
+		ProgressBar(WindowDetailsSPtr windowDetails);
+		ProgressBar(
+			WindowDetailsSPtr windowDetails,
+			Vec2D position,
+			Vec2D size,
+			SDL_Colour empty,
+			SDL_Colour full,
+			Vec2D scale = Vec2D{ 1, 1 },
+			double rotation = 0.0
+		);
+		~ProgressBar();
 
-	void render(SDL_Renderer* renderer, sdlt::ParentProperties pProperties);
+		void render(ParentProperties pProperties);
 
-	void setPercentage(double newPercentage);
+		void setPercentage(double newPercentage);
 
-	void updateSize(int w, int h);
-private:
-	int mW;
-	int mH;
+		void updateSize(int w, int h);
+		void updateSize(Vec2D size);
+	private:
+		Vec2D mSize;
 
-	SDL_Colour mEmptyCol;
-	SDL_Colour mFullCol;
+		SDL_Colour mEmptyCol;
+		SDL_Colour mFullCol;
 
-	BarType mType;
-
-	double mFillPercent;
-};
+		double mFillPercent;
+	};
+}

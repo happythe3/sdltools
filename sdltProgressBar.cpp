@@ -18,59 +18,58 @@ limitations under the License.
 
 using namespace sdlt;
 
-qdtProgressBar::qdtProgressBar(int x, int y, int w, int h, SDL_Colour empty, 
-	SDL_Colour full, BarType type)
-	:RenderNode(x, y)
+ProgressBar::ProgressBar(WindowDetailsSPtr windowDetails)
+	:ProgressBar{
+	windowDetails,
+	sdlt::Vec2D{ 100, 100 },
+	sdlt::Vec2D{ 20, 200 },
+	{0x00, 0xff, 0x00, 0xff},
+	{ 0xff, 0x0, 0x00, 0xff },
+	sdlt::Vec2D{ 1, 1 },
+	0.0
+} {}
+
+ProgressBar::ProgressBar(
+	WindowDetailsSPtr windowDetails, 
+	Vec2D position,
+	Vec2D size,
+	SDL_Colour empty, 
+	SDL_Colour full, 
+	Vec2D scale,
+	double rotation)
+	:RenderNode{ windowDetails, position, scale, rotation },
+	mSize{ size },
+	mEmptyCol{ empty }, mFullCol{ full },
+	mFillPercent{ 0.0 }
 {
-	mW = w;
-	mH = h;
-	
-	mEmptyCol = empty;
-	mFullCol = full;
-
-	mType = type;
-
-	mFillPercent = 0.0;
 }
 
-qdtProgressBar::~qdtProgressBar()
+ProgressBar::~ProgressBar()
 {
 
 }
 
-
-void qdtProgressBar::render(SDL_Renderer * renderer, sdlt::ParentProperties pProperties)
+void ProgressBar::render(ParentProperties pProperties)
 {
 	SDL_Point pos = applyParentPosition(pProperties);
 
 	SDL_Rect barRect = {
 		pos.x,
 		pos.y,
-		int(mW*pProperties.scaleX * mScale.getX()),
-		int(mH*pProperties.scaleY * mScale.getY())
+		int(mSize.getX()*pProperties.scaleX * mScale.getX()),
+		int(mSize.getY()*pProperties.scaleY * mScale.getY())
 	};
 
-	SDL_SetRenderDrawColor(renderer, mEmptyCol.r, mEmptyCol.g, mEmptyCol.b, mEmptyCol.a);
-	SDL_RenderFillRect(renderer, &barRect);
+	SDL_SetRenderDrawColor(mWindowDetails->rendererPtr, mEmptyCol.r, mEmptyCol.g, mEmptyCol.b, mEmptyCol.a);
+	SDL_RenderFillRect(mWindowDetails->rendererPtr, &barRect);
 
-	switch (mType)
-	{
-	case BarHorizontal:
-		barRect.w = int(mW*pProperties.scaleX * mScale.getX() * mFillPercent);
-		break;
-	case BarVertical:
-		barRect.h = int(mH*pProperties.scaleY * mScale.getY() * mFillPercent);
-		break;
-	default:
-		throw;
-		break;
-	}
+	barRect.w = int(mSize.getX()*pProperties.scaleX * mScale.getX() * mFillPercent);
 
-	SDL_SetRenderDrawColor(renderer, mFullCol.r, mFullCol.g, mFullCol.b, mFullCol.a);
-	SDL_RenderFillRect(renderer, &barRect);
+	SDL_SetRenderDrawColor(mWindowDetails->rendererPtr, mFullCol.r, mFullCol.g, mFullCol.b, mFullCol.a);
+	SDL_RenderFillRect(mWindowDetails->rendererPtr, &barRect);
 }
 
-void qdtProgressBar::setPercentage(double newPercentage)
+void ProgressBar::setPercentage(double newPercentage)
 {
 	mFillPercent = newPercentage;
 
@@ -78,10 +77,19 @@ void qdtProgressBar::setPercentage(double newPercentage)
 	{
 		mFillPercent = 0.0;
 	}
+	else if (mFillPercent > 1.0)
+	{
+		mFillPercent = 1.0;
+	}
 }
 
-void qdtProgressBar::updateSize(int w, int h)
+void ProgressBar::updateSize(int w, int h)
 {
-	mW = w;
-	mH = h;
+	mSize.setX(w);
+	mSize.setY(h);
+}
+
+void ProgressBar::updateSize(Vec2D size)
+{
+	mSize = size;
 }
