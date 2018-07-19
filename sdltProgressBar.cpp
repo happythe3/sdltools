@@ -39,7 +39,7 @@ qdtProgressBar::~qdtProgressBar()
 }
 
 
-void qdtProgressBar::render(SDL_Renderer * renderer, ParentProperties pProperties)
+void qdtProgressBar::render(SDL_Renderer * renderer, sdlt::ParentProperties pProperties)
 {
 	SDL_Point pos = applyParentPosition(pProperties);
 

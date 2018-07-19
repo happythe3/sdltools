@@ -58,6 +58,11 @@ Window::Window(string windowName, int width, int height, Uint32 flags)
 	mRenderNode = std::unique_ptr<RenderNode>{ new RenderNode{ mWindowDetails, Position2D{0, 0}} };
 }
 
+sdlt::Window::Window(std::string windowName, int width, int height)
+	:Window(windowName, width, height, 0)
+{
+}
+
 
 Window::~Window()
 {

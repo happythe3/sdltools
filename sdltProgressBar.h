@@ -31,7 +31,7 @@ public:
 	qdtProgressBar(int x, int y, int w, int h, SDL_Colour empty, SDL_Colour full, BarType type = BarHorizontal);
 	~qdtProgressBar();
 
-	void render(SDL_Renderer* renderer, ParentProperties pProperties);
+	void render(SDL_Renderer* renderer, sdlt::ParentProperties pProperties);
 
 	void setPercentage(double newPercentage);
 

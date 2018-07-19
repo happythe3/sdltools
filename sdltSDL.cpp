@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "sdltSDLManager.h"
+#include "sdltSDL.h"
 
 #include <stdexcept>
 
@@ -24,7 +24,7 @@ limitations under the License.
 
 using namespace sdlt;
 
-Manager::Manager()
+SDL::SDL()
 {
 	//Initialize SDL
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -50,7 +50,7 @@ Manager::Manager()
 	}
 }
 
-Manager::~Manager()
+SDL::~SDL()
 {
 	TTF_Quit();
 	IMG_Quit();

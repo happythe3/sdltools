@@ -23,10 +23,10 @@ limitations under the License.
 namespace sdlt
 {
 	// Manages loading and unloading of SDL and its components
-	class Manager
+	class SDL
 	{
 	public:
-		Manager();
-		~Manager();
+		SDL();
+		~SDL();
 	};
 }

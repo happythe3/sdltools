@@ -32,6 +32,7 @@ namespace sdlt // SDL Tools
 	{
 	public:
 		Window(std::string windowName, int width, int height, Uint32 flags);
+		Window(std::string windowName, int width, int height);
 		~Window();
 
 		void setBackgroundColour(SDL_Colour colour);
